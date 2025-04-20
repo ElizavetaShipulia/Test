@@ -5,7 +5,7 @@ I2C_HandleTypeDef hi2c1;
 
 #define RGBW_I2C_ADDR    (0x20 << 1) 
 
-
+// Локальное хранилище состояния каналов и яркости
 static uint8_t rgbw_brightness[4] = {0, 0, 0, 0}; 
 static uint8_t rgbw_enabled[4] = {0, 0, 0, 0}; 
 
@@ -24,7 +24,7 @@ void RGBW_Init(void) {
     if (HAL_I2C_Init(&hi2c1) != HAL_OK) {
         while(1);
     }
-
+// Все светодиоды выключены, яркость нулевая
     for (int i=0; i<4; i++) {
         rgbw_brightness[i] = 0;
         rgbw_enabled[i] = 0;
@@ -39,7 +39,7 @@ void RGBW_UpdateHW(void) {
     }
     HAL_I2C_Mem_Write(&hi2c1, RGBW_I2C_ADDR, 0x00, I2C_MEMADD_SIZE_8BIT, tx, 4, HAL_MAX_DELAY);
 }
-
+// Управление яркостью отдельного канала
 void RGBW_SetBrightness(uint8_t channel, uint8_t brightness) {
     if (channel > 3) return;
     rgbw_brightness[channel] = brightness;
@@ -47,13 +47,13 @@ void RGBW_SetBrightness(uint8_t channel, uint8_t brightness) {
         RGBW_UpdateHW();
     }
 }
-
+// Включение/выключение отдельного канала
 void RGBW_ChannelOnOff(uint8_t channel, bool on){
     if (channel > 3) return;
     rgbw_enabled[channel] = (on ? 1 : 0);
     RGBW_UpdateHW();
 }
-
+// Включение/выключение всех каналов
 void RGBW_AllOnOff(bool on){
     for (int i=0; i<4; i++) {
         rgbw_enabled[i] = (on ? 1 : 0);
